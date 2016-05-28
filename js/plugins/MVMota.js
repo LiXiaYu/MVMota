@@ -626,6 +626,9 @@ var MVMota=window.MVMota||{};
         }
     }
     
-    
+    //魔法钥匙-黄门列表
     MVMota.MagicKey={};
     MVMota.MagicKey.YellowDoorList=[null];
+    
+    MVMota.Bomb={};
+    MVMota.Bomb.DestoriabeList=[null];

@@ -9525,7 +9525,6 @@ Game_Interpreter.prototype.operateVariable = function(variableId, operationType,
 
 // Control Self Switch
 Game_Interpreter.prototype.command123 = function() {
-    console.log(this._params);
     if (this._eventId > 0) {
         var key = [this._mapId, this._eventId, this._params[0]];
         $gameSelfSwitches.setValue(key, this._params[1] === 0);
