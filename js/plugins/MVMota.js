@@ -626,9 +626,165 @@ var MVMota=window.MVMota||{};
         }
     }
     
-    //魔法钥匙-黄门列表
+////    //魔法钥匙-黄门列表
     MVMota.MagicKey={};
     MVMota.MagicKey.YellowDoorList=[null];
-    
+////    //炸弹    
     MVMota.Bomb={};
     MVMota.Bomb.DestoriabeList=[null];
+////    //飞行魔杖
+    MVMota.FlyingWand={};
+    MVMota.FlyingWand.ArrivedFloorList=[null];
+    MVMota.FlyingWand.LandingList=[null];
+    MVMota.FlyingWand.Coming=function(floor){
+        for(var i=1;i<MVMota.FlyingWand.ArrivedFloorList.length;i++)
+        {
+            if(MVMota.FlyingWand.ArrivedFloorList[i]===floor)
+            {
+                return;
+            }
+            else if(MVMota.FlyingWand.ArrivedFloorList[i]>floor)
+            {
+                MVMota.FlyingWand.ArrivedFloorList.splice(i,0,floor);
+                return;
+            }
+        }
+        MVMota.FlyingWand.ArrivedFloorList.push(floor);
+    }
+    MVMota.FlyingWand.Flyto=function(floor){
+        if(floor==null)
+        {
+            return;
+        }
+        else
+        {
+            if(MVMota.mainHero.floor!=floor)
+            {
+                var id;
+                var x;
+                var y;
+                for(var i=1;i<MVMota.FlyingWand.LandingList.length;i++)
+                {
+                    if(floor===MVMota.FlyingWand.LandingList[i].floor)
+                    {
+                        id=MVMota.FlyingWand.LandingList[i].id;
+                        if(MVMota.mainHero.floor>floor)
+                        {
+                            x=MVMota.FlyingWand.LandingList[i].up.x;
+                            y=MVMota.FlyingWand.LandingList[i].up.y;
+                        }
+                        else
+                        {
+                            x=MVMota.FlyingWand.LandingList[i].down.x;
+                            y=MVMota.FlyingWand.LandingList[i].down.y;
+                        }
+                        break;
+                    }
+                }
+
+                $gamePlayer.reserveTransfer(id, x, y);
+                //飞行后的善后处理
+                MVMota.mainHero.floor=floor;
+                MVMota.MagicKey.YellowDoorList=[null];
+                MVMota.Bomb.DestoriabeList=[null];
+            } 
+            else
+            {
+                return;
+            }
+        }
+    }
+    //飞行魔杖窗口
+    MVMota.FlyingWand.sc=null;
+    MVMota.FlyingWand.mw=null;
+    MVMota.FlyingWand.targetFloor=null;
+    
+    MVMota.FlyingWand.Window_Item=function(){
+        this.initialize.apply(this, arguments);
+    }
+    MVMota.FlyingWand.Window_Item.prototype = Object.create(Window_Command.prototype);
+    MVMota.FlyingWand.Window_Item.prototype.constructor = MVMota.FlyingWand.Window_Item;
+    //初始化
+    MVMota.FlyingWand.Window_Item.prototype.initialize = function (){
+        var width = this.windowWidth();
+        var height = this.windowHeight();
+        var x=this.windowPosition().x;
+        var y=this.windowPosition().y;
+        Window_Command.prototype.initialize.call(this, x, y, width, height);
+        this.opacity = this.windowOpacity();
+
+
+    };
+    //窗口位置
+    MVMota.FlyingWand.Window_Item.prototype.windowPosition = function (){
+        return {x:20,y:20};
+    };
+    //窗口宽
+    MVMota.FlyingWand.Window_Item.prototype.windowWidth = function (){
+        return 500;
+    };
+    //窗口高
+    MVMota.FlyingWand.Window_Item.prototype.windowHeight = function (){
+        return 500;
+    };
+    //窗口不透明度
+    MVMota.FlyingWand.Window_Item.prototype.windowOpacity = function (){
+        return 50;
+    };
+    /*//更新方法，每次刷新窗口都要执行
+    MVMota.FlyingWand.Window_Item.prototype.update = function (){
+        this.contents.clear();
+        this.addCommand("item","item",true);
+    };*/
+    
+    MVMota.FlyingWand.Window_Item.prototype.makeCommandList=function(){
+        var floors=MVMota.FlyingWand.ArrivedFloorList;
+        for(var i=1;i<floors.length;i++)
+        {
+            //this.addCommand("item","item",true);
+            this.addCommand("第"+floors[i]+"层",""+i,true);
+        }
+    }
+    
+    MVMota.FlyingWand.Scene_Item=function(){
+        this.initialize.apply(this, arguments);
+    }
+    MVMota.FlyingWand.Scene_Item.prototype=Object.create(Scene_MenuBase.prototype);
+    MVMota.FlyingWand.Scene_Item.prototype.constructor=MVMota.FlyingWand.Scene_Item;
+    MVMota.FlyingWand.Scene_Item.prototype.initialize=function(){
+        Scene_MenuBase.prototype.initialize.call(this);
+        
+    }
+    MVMota.FlyingWand.Scene_Item.prototype.create=function(){
+        Scene_MenuBase.prototype.create.call(this);
+        
+        MVMota.FlyingWand.mw=new MVMota.FlyingWand.Window_Item();
+        for(var i=1;i<MVMota.FlyingWand.ArrivedFloorList.length;i++)
+        {
+            //MVMota.FlyingWand.mw.setHandler("item",this.commandItem.bind(this));
+            MVMota.FlyingWand.mw.setHandler(""+i,this.commandItem.bind(this));
+        }
+        this.addChild(MVMota.FlyingWand.mw);
+        MVMota.FlyingWand.sc=this;
+    }
+    MVMota.FlyingWand.Scene_Item.prototype.commandItem=function(){
+        MVMota.FlyingWand.mw.activate();
+        MVMota.FlyingWand.mw.refresh();
+        
+        var i=parseInt(MVMota.FlyingWand.mw.currentSymbol());
+        MVMota.FlyingWand.targetFloor=i;
+        MVMota.FlyingWand.mw.refresh();
+            
+        
+    }
+    MVMota.FlyingWand.Scene_Item.prototype.update=function(){
+        Scene_MenuBase.prototype.update.call(this);
+        if (Input.isTriggered('escape') || Input.isTriggered('cancel')) {
+            MVMota.FlyingWand.mw.hide();
+            SceneManager.goto(Scene_Map);
+
+            MVMota.FlyingWand.Flyto(MVMota.FlyingWand.targetFloor);
+            MVMota.FlyingWand.targetFloor=null;
+            
+        }
+    }
