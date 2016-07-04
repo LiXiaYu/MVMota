@@ -342,6 +342,34 @@ var MVMota=window.MVMota||{};
         MVMota.mainHero=MVMota.Hero.createNew();
     };
     
+    //楼层表，地图id与楼层floor相对应
+    MVMota.MotaFloorList={};
+    MVMota.MotaFloorList.list=[null,{mapId:3,floor:1},{mapId:7,floor:2},{mapid:8,floor:3}];
+    MVMota.MotaFloorList.findIdByFloor=function(floor){
+        for(var i=1;i<MVMota.MotaFloorList.list.length;i++)
+        {
+            if(MVMota.MotaFloorList.list[i].floor===floor)
+            {
+                return MVMota.MotaFloorList.list[i].id;
+            }
+        }
+
+        return null;
+    };
+    MVMota.MotaFloorList.findFloorById=function(id){
+        for(var i=1;i<MVMota.MotaFloorList.list.length;i++)
+        {
+            if(MVMota.MotaFloorList.list[i].mapId===id)
+            {
+                return MVMota.MotaFloorList.list[i].floor;
+            }
+        }
+
+        return null;
+    };
+
+
+
     MVMota.changedMaps=[null];
     
 ////    //道具窗口

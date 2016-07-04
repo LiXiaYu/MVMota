@@ -2,10 +2,10 @@
 null,
 {"id":1,"expanded":true,"name":"Module","order":1,"parentId":0,"scrollX":532,"scrollY":306.5},
 {"id":2,"expanded":true,"name":"Items","order":2,"parentId":1,"scrollX":532,"scrollY":305},
-{"id":3,"expanded":true,"name":"Floor1","order":6,"parentId":6,"scrollX":532,"scrollY":317.5},
+{"id":3,"expanded":true,"name":"Floor1","order":6,"parentId":6,"scrollX":532,"scrollY":308.5},
 {"id":4,"expanded":true,"name":"Monster","order":3,"parentId":1,"scrollX":532,"scrollY":307},
 {"id":5,"expanded":true,"name":"Terrains","order":4,"parentId":1,"scrollX":532,"scrollY":307.5},
 {"id":6,"expanded":true,"name":"Mota","order":5,"parentId":0,"scrollX":532,"scrollY":317.5},
-{"id":7,"expanded":true,"name":"Floor2","order":7,"parentId":6,"scrollX":832,"scrollY":640},
+{"id":7,"expanded":true,"name":"Floor2","order":7,"parentId":6,"scrollX":532,"scrollY":306.5},
 {"id":8,"expanded":true,"name":"Floor3","order":8,"parentId":6,"scrollX":532,"scrollY":317.5}
 ]

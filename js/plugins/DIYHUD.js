@@ -1,4 +1,4 @@
-
+/// <reference path="MVMota.js"/>
 /**
  * Created by 夏末渐离 on 2015/11/30.
  * 注意：脚本文件名为：DIYHUD.js
