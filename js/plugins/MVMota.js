@@ -368,8 +368,161 @@ var MVMota=window.MVMota||{};
         return null;
     };
 
+    //对话记事本，对话记录
+    MVMota.NotePad={};
+    MVMota.NotePad.List=[null,{id:1,speaker:"ZhuangBi Older",contents:"Welcome to the world of Mota",hiden:false}];
+    MVMota.NotePad.Show=function(id){
+        for(var i=1;i<MVMota.NotePad.List.length;i++)
+        {
+            if(MVMota.NotePad.List[i].id===id)
+            {
+                MVMota.NotePad.List[i].hiden=false;
+            }
+        }
+    }
+    MVMota.NotePad.Hide=function(id){
+        for(var i=1;i<MVMota.NotePad.List.length;i++)
+        {
+            if(MVMota.NotePad.List[i].id===id)
+            {
+                MVMota.NotePad.List[i].hiden=true;
+            }
+        }
+    }
+
+    MVMota.NotePad.sc=null;
+    MVMota.NotePad.wl=null;
+    MVMota.NotePad.wi=null;
+
+    //左边，列表窗口
+    MVMota.NotePad.Window_List=function(){
+        this.initialize.apply(this, arguments);
+    }
+    MVMota.NotePad.Window_List.prototype = Object.create(Window_Command.prototype);
+    MVMota.NotePad.Window_List.prototype.constructor = MVMota.NotePad.Window_List;
+    //初始化
+    MVMota.NotePad.Window_List.prototype.initialize = function (){
+        var width = this.windowWidth();
+        var height = this.windowHeight();
+        var x=this.windowPosition().x;
+        var y=this.windowPosition().y;
+        Window_Command.prototype.initialize.call(this, x, y, width, height);
+        this.opacity = this.windowOpacity();
 
 
+    };
+    //窗口位置
+    MVMota.NotePad.Window_List.prototype.windowPosition = function (){
+        return {x:20,y:20};
+    };
+    //窗口宽
+    MVMota.NotePad.Window_List.prototype.windowWidth = function (){
+        return 200;
+    };
+    //窗口高
+    MVMota.NotePad.Window_List.prototype.windowHeight = function (){
+        return 500;
+    };
+    //窗口不透明度
+    MVMota.NotePad.Window_List.prototype.windowOpacity = function (){
+        return 50;
+    };
+
+    MVMota.NotePad.Window_List.prototype.makeCommandList=function(){
+        var j=0;
+        for(var i=1;i<MVMota.NotePad.List.length;i++)
+        {
+            if(MVMota.NotePad.List[i].hiden==false)
+            {
+                j++;
+                var id=MVMota.NotePad.List[i].id;
+                this.addCommand("第"+j+"条",""+id,true);
+            }
+        }
+    }
+
+    //右边，信息窗口
+    MVMota.NotePad.Window_Information=function(){
+        this.initialize.apply(this, arguments);
+    }
+    MVMota.NotePad.Window_Information.prototype = Object.create(Window_Selectable.prototype);
+    MVMota.NotePad.Window_Information.prototype.constructor = MVMota.NotePad.Window_Information;
+    //初始化
+    MVMota.NotePad.Window_Information.prototype.initialize = function (){
+        var width = this.windowWidth();
+        var height = this.windowHeight();
+        var x=this.windowPosition().x;
+        var y=this.windowPosition().y;
+        Window_Selectable.prototype.initialize.call(this, x, y, width, height);
+        this.opacity = this.windowOpacity();
+    };
+    //窗口位置
+    MVMota.NotePad.Window_Information.prototype.windowPosition = function (){
+        return {x:220,y:20};
+    };
+    //窗口宽
+    MVMota.NotePad.Window_Information.prototype.windowWidth = function (){
+        return 500;
+    };
+    //窗口高
+    MVMota.NotePad.Window_Information.prototype.windowHeight = function (){
+        return 500;
+    };
+    //窗口不透明度
+    MVMota.NotePad.Window_Information.prototype.windowOpacity = function (){
+        return 50;
+    };
+
+    //场景
+    MVMota.NotePad.Scene_NotePad=function(){
+        this.initialize.apply(this, arguments);
+    }
+    MVMota.NotePad.Scene_NotePad.prototype=Object.create(Scene_MenuBase.prototype);
+    MVMota.NotePad.Scene_NotePad.prototype.constructor=MVMota.NotePad.Scene_NotePad;
+    MVMota.NotePad.Scene_NotePad.prototype.initialize=function(){
+        Scene_MenuBase.prototype.initialize.call(this);
+        
+    }
+    MVMota.NotePad.Scene_NotePad.prototype.create=function(){
+        Scene_MenuBase.prototype.create.call(this);
+
+        //加入窗口
+        MVMota.NotePad.wl=new MVMota.NotePad.Window_List();
+        MVMota.NotePad.wi=new MVMota.NotePad.Window_Information();
+        for(var i=1;i<MVMota.NotePad.List.length;i++)
+        {
+            MVMota.NotePad.wl.setHandler(""+i,this.commandItem.bind(this));
+        }
+        this.addChild(MVMota.NotePad.wl);
+        this.addChild(MVMota.NotePad.wi);
+        MVMota.NotePad.sc=this;
+    }
+    //绑定命令的处理
+    MVMota.NotePad.Scene_NotePad.prototype.commandItem=function(){
+        MVMota.NotePad.wl.activate();
+        MVMota.NotePad.wi.refresh();
+        
+        var id=parseInt(MVMota.NotePad.wl.currentSymbol());
+
+        MVMota.NotePad.wi.contents.clear();
+        MVMota.NotePad.wi.drawText(""+MVMota.NotePad.List[id].speaker+"：",15,18,MVMota.NotePad.Window_Information.prototype.windowWidth()-20,20,"left");
+        MVMota.NotePad.wi.drawText("    "+MVMota.NotePad.List[id].contents+"：",15,40,MVMota.NotePad.Window_Information.prototype.windowWidth()-20,20,"left");
+        
+        MVMota.NotePad.wl.refresh();
+        //MVMota.NotePad.wi.refresh();
+            
+        
+    }
+    MVMota.NotePad.Scene_NotePad.prototype.update=function(){
+        Scene_MenuBase.prototype.update.call(this);
+        if (Input.isTriggered('escape') || Input.isTriggered('cancel')) {
+            MVMota.NotePad.wl.hide();
+            MVMota.NotePad.wi.hide();
+            SceneManager.goto(Scene_Map);
+        }
+    }
+
+////    //对地图的改变，记录在此。。。
     MVMota.changedMaps=[null];
     
 ////    //道具窗口
