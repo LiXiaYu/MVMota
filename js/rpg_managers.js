@@ -26,8 +26,6 @@ var $dataCommonEvents = null;
 var $dataSystem       = null;
 var $dataMapInfos     = null;
 var $dataMap          = null;
-var $dataMVMotaMonsters=null;
-var $dataMVMotaItems  = null;
 var $gameTemp         = null;
 var $gameSystem       = null;
 var $gameScreen       = null;
@@ -62,10 +60,6 @@ DataManager._databaseFiles = [
     { name: '$dataCommonEvents', src: 'CommonEvents.json' },
     { name: '$dataSystem',       src: 'System.json'       },
     { name: '$dataMapInfos',     src: 'MapInfos.json'     },
-    { name: '$dataMVMotaMonsters',     src: 'MVMotaMonsters.json'     },
-        { name: '$dataMVMotaItems',  src: 'MVMotaItems.json'     },
-    { name: '$dataMVMotaAtcTypes',  src: 'MVMotaAtcTypes.json'     },
-    { name: '$dataMVMotaDefTypes',  src: 'MVMotaDefTypes.json'     }
 ];
 
 DataManager.loadDatabase = function() {

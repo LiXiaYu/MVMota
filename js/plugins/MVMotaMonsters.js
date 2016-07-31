@@ -1,4 +1,6 @@
-[
+var MVMota=window.MVMota||{};
+
+MVMota.Monsters=[
 null,
 {"id":1,"name":"Green Slime","hp":35,"atc":18,"def":1,"money":1,"atcType":1,"defType":1},
 {"id":2,"name":"Red Slime","hp":45,"atc":20,"def":2,"money":2,"atcType":1,"defType":1},

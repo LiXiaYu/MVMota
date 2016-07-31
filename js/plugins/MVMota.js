@@ -21,13 +21,13 @@ var MVMota=window.MVMota||{};
             role.atcEffect=function(){
                 var effect=[null];
                 //预定义的Type加载
-                for(var i=1;i<$dataMVMotaAtcTypes.length;i++){
-                    if($dataMVMotaAtcTypes[i].id==role.atcType){
-                        for(var j=1;j<$dataMVMotaDefTypes.length;j++){
+                for(var i=1;i<MVMota.AtcTypes.length;i++){
+                    if(MVMota.AtcTypes[i].id==role.atcType){
+                        for(var j=1;j<MVMota.DefTypes.length;j++){
                             effect.push(1.0);
                         }
-                        for(var j=1;j<$dataMVMotaAtcTypes[i].effects.length;j++){
-                            effect[$dataMVMotaAtcTypes[i].effects[j].id]=$dataMVMotaAtcTypes[i].effects[j].effect;
+                        for(var j=1;j<MVMota.AtcTypes[i].effects.length;j++){
+                            effect[MVMota.AtcTypes[i].effects[j].id]=MVMota.AtcTypes[i].effects[j].effect;
                         }
                     }
                 }
@@ -47,13 +47,13 @@ var MVMota=window.MVMota||{};
             role.defEffect=function(){
                 var effect=[null];
                 //预定义的Type加载
-                for(var i=1;i<$dataMVMotaDefTypes.length;i++){
-                    if($dataMVMotaDefTypes[i].id==role.defType){
-                        for(var j=1;j<$dataMVMotaAtcTypes.length;j++){
+                for(var i=1;i<MVMota.DefTypes.length;i++){
+                    if(MVMota.DefTypes[i].id==role.defType){
+                        for(var j=1;j<MVMota.AtcTypes.length;j++){
                             effect.push(1.0);
                         }
-                        for(var j=1;j<$dataMVMotaDefTypes[i].effects.length;j++){
-                            effect[$dataMVMotaDefTypes[i].effects[j].id]=$dataMVMotaDefTypes[i].effects[j].effect;
+                        for(var j=1;j<MVMota.DefTypes[i].effects.length;j++){
+                            effect[MVMota.DefTypes[i].effects[j].id]=MVMota.DefTypes[i].effects[j].effect;
                         }
                     }
                 }
@@ -157,14 +157,14 @@ var MVMota=window.MVMota||{};
         buildMonster: function (id) {
             var monster=MVMota.Monster.createNew();
             
-            monster.id=$dataMVMotaMonsters[id].id;
-            monster.name=$dataMVMotaMonsters[id].name;
-            monster.hp=$dataMVMotaMonsters[id].hp;
-            monster.atc=$dataMVMotaMonsters[id].atc;
-            monster.def=$dataMVMotaMonsters[id].def;
-            monster.money=$dataMVMotaMonsters[id].money;
-            monster.atcType=$dataMVMotaMonsters[id].atcType;
-            monster.defType=$dataMVMotaMonsters[id].defType;
+            monster.id=MVMota.Monsters[id].id;
+            monster.name=MVMota.Monsters[id].name;
+            monster.hp=MVMota.Monsters[id].hp;
+            monster.atc=MVMota.Monsters[id].atc;
+            monster.def=MVMota.Monsters[id].def;
+            monster.money=MVMota.Monsters[id].money;
+            monster.atcType=MVMota.Monsters[id].atcType;
+            monster.defType=MVMota.Monsters[id].defType;
             return monster;
         }
     };
@@ -271,13 +271,15 @@ var MVMota=window.MVMota||{};
                   return false;
               }
           }
-          
+          item.hiden=false;
+          item.canUseByPlayer=true;
+
           return item;
       },
       
       CreatItemList:function(){
           var itemlist=[];
-          var items=$dataMVMotaItems;
+          var items=MVMota.Items;
           if(items==null)
           {
               return null;
@@ -326,8 +328,10 @@ var MVMota=window.MVMota||{};
               {
                   item.dropAfter=eval(items[i].dropAfter);
               }
-              
-              
+
+              item.hiden=items[i].hiden;
+              item.canUseByPlayer=items[i].canUseByPlayer;
+
               itemlist.push(item);
           }
           
@@ -342,9 +346,9 @@ var MVMota=window.MVMota||{};
         MVMota.mainHero=MVMota.Hero.createNew();
     };
     
-    //楼层表，地图id与楼层floor相对应
+////    //楼层表，地图id与楼层floor相对应
     MVMota.MotaFloorList={};
-    MVMota.MotaFloorList.list=[null,{mapId:3,floor:1},{mapId:7,floor:2},{mapid:8,floor:3}];
+    MVMota.MotaFloorList.list=[null,{mapId:10,floor:1},{mapId:7,floor:2},{mapid:8,floor:3}];
     MVMota.MotaFloorList.findIdByFloor=function(floor){
         for(var i=1;i<MVMota.MotaFloorList.list.length;i++)
         {
@@ -368,7 +372,7 @@ var MVMota=window.MVMota||{};
         return null;
     };
 
-    //对话记事本，对话记录
+////    //对话记事本，对话记录
     MVMota.NotePad={};
     MVMota.NotePad.List=[null,{id:1,speaker:"ZhuangBi Older",contents:"Welcome to the world of Mota",hiden:false}];
     MVMota.NotePad.Show=function(id){
@@ -574,7 +578,7 @@ var MVMota=window.MVMota||{};
         for(var i=1;i<items.length;i++)
         {
             //this.addCommand("item","item",true);
-            this.addCommand(items[i].name+"："+items[i].amount,""+i,true);
+            this.addCommand(items[i].name+"："+items[i].amount,""+i,items[i].canUseByPlayer);
         }
     }
     
@@ -691,7 +695,7 @@ var MVMota=window.MVMota||{};
         for(var i=1;i<MVMota.MonsterBook.monsterList.length;i++)
         {
             var id=MVMota.MonsterBook.monsterList[i];
-            this.addCommand(""+$dataMVMotaMonsters[id].name,""+i,true);
+            this.addCommand(""+MVMota.Monsters[id].name,""+i,true);
         }
     }
     
@@ -786,10 +790,10 @@ var MVMota=window.MVMota||{};
         var id=parseInt(MVMota.MonsterBook.wl.currentSymbol());
         var i=0;
         MVMota.MonsterBook.wi.contents.clear();
-        for (var p in $dataMVMotaMonsters[id])
+        for (var p in MVMota.Monsters[id])
         {
-            console.log($dataMVMotaMonsters[id][p]);
-            MVMota.MonsterBook.wi.drawText(""+p+"："+$dataMVMotaMonsters[id][p],MVMota.MonsterBook.wi.windowPosition().x,MVMota.MonsterBook.wi.windowPosition().y+23*i,500,20,"left");
+            console.log(MVMota.Monsters[id][p]);
+            MVMota.MonsterBook.wi.drawText(""+p+"："+MVMota.Monsters[id][p],MVMota.MonsterBook.wi.windowPosition().x,MVMota.MonsterBook.wi.windowPosition().y+23*i,500,20,"left");
             i++;
         }
         
