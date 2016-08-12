@@ -722,7 +722,7 @@
             return;
         }
         this.SwitchActor();
-        if(MVMota.mainHero.floor!=this.lasthp)
+        if(MVMota.mainHero.floor!=this.lastfloor)
             this.refresh_floor();
         if(MVMota.mainHero.hp!=this.lasthp)
             this.refresh_hp();

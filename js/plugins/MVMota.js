@@ -1,8 +1,7 @@
-/// <reference path="DIYHUD.js"/>
 //=============================================================================
 // MVMota.js
 //=============================================================================
-
+//"use strict";//严格模式，node.js的es6？？？
 
 //封装在了MVMota里面，装个逼，就当namespace了，或者主class之类
 var MVMota=window.MVMota||{};
@@ -345,7 +344,182 @@ var MVMota=window.MVMota||{};
         //主英雄 对象 内含数据
         MVMota.mainHero=MVMota.Hero.createNew();
     };
-    
+
+////    //设置窗口大小  启发自 YEP
+    SceneManager._screenWidth  = 864;
+    //SceneManager._screenHeight = 624;
+    SceneManager._boxWidth     = 864;
+    //SceneManager._boxHeight    = 624;
+    MVMota.SceneManager_run = SceneManager.run;
+    SceneManager.run = function(sceneClass) {
+        MVMota.SceneManager_run.call(this, sceneClass);
+        if (Utils.isMobileDevice()) return;
+        if (Utils.isMobileSafari()) return;
+        if (Utils.isAndroidChrome()) return;
+            var resizeWidth = Graphics.boxWidth - window.innerWidth;
+            var resizeHeight = Graphics.boxHeight - window.innerHeight;
+            window.moveBy(-1 * resizeWidth / 2, -1 * resizeHeight / 2);
+            window.resizeBy(resizeWidth, resizeHeight);
+    };
+////    
+
+////    //HUD界面   启发自 夏末渐离
+    var _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
+    Scene_Map.prototype.createAllWindows = function ()
+    {
+        _Scene_Map_createAllWindows.call(this);
+         this.addChild(new MVMota.Window_HUD());
+    };
+
+    MVMota.Window_HUD=function(){
+        this.initialize.apply(this, arguments);
+    }
+    MVMota.Window_HUD.prototype = Object.create(Window_Base.prototype);
+    MVMota.Window_HUD.prototype.constructor = MVMota.Window_HUD;
+    //初始化
+    MVMota.Window_HUD.prototype.initialize = function (){
+        var width = this.windowWidth();
+        var height = this.windowHeight();
+        var x=this.windowPosition().x;
+        var y=this.windowPosition().y;
+        Window_Base.prototype.initialize.call(this, x, y, width, height);
+        this.opacity = this.windowOpacity();
+
+        if(MVMota.mainHero==null)
+        {
+            return;
+        }
+        this.drawALLText();
+        
+        this.lastfloor=null;
+        this.lasthp = null;
+        this.lastatc = null;
+        this.lastdef = null;
+        this.lastmoney = null;
+        this.lastyellowkey = null;
+        this.lastbluekey = null;
+        this.lastredkey = null;
+
+
+    };
+    //窗口位置
+    MVMota.Window_HUD.prototype.windowPosition = function (){
+        return {x:20,y:20};
+    };
+    //窗口宽
+    MVMota.Window_HUD.prototype.windowWidth = function (){
+        return 250;
+    };
+    //窗口高
+    MVMota.Window_HUD.prototype.windowHeight = function (){
+        return 500;
+    };
+    //窗口不透明度
+    MVMota.Window_HUD.prototype.windowOpacity = function (){
+        return 50;
+    };
+    MVMota.Window_HUD.prototype.drawALLText= function(){
+        this.contents.clear();
+        this.contents.fontSize = 24;
+        var Px=200;
+        var Py=50;
+        var i=1;
+        this.drawDataText(MVMota.mainHero.floor,"Floor",Px, Py/10);
+        this.drawDataText(MVMota.mainHero.hp,"hp",Px,Py*(i++));
+        this.drawDataText(MVMota.mainHero.atc,"atc",Px,Py*(i++));
+        this.drawDataText(MVMota.mainHero.def,"def",Px,Py*(i++));
+        this.drawDataText(MVMota.mainHero.money,"money",Px,Py*(i++));
+        this.drawDataText(MVMota.mainHero.items[1].amount,MVMota.mainHero.items[1].name,Px,Py*(i++));
+        this.drawDataText(MVMota.mainHero.items[2].amount,MVMota.mainHero.items[2].name,Px,Py*(i++));
+        this.drawDataText(MVMota.mainHero.items[3].amount,MVMota.mainHero.items[3].name,Px,Py*(i++));
+        //this.drawLevel(this.actor, levelPosition.x, levelPosition.y, addwidth);
+    };
+    //绘制数据文字
+    MVMota.Window_HUD.prototype.drawDataText=function(current,item,x,y){
+        var valueWidth=60;
+        var x1 = x - valueWidth;
+        var x2 = x1 - valueWidth/2;
+        var x3 = x2 - valueWidth;
+        this.drawText(item+":"+current, x3, y, valueWidth, 'right');
+    };
+
+    //刷新floor
+    MVMota.Window_HUD.prototype.refresh_floor = function (){
+            this.drawALLText();
+            this.lastfloor = MVMota.mainHero.floor;
+    };
+    //刷新hp
+    MVMota.Window_HUD.prototype.refresh_hp = function (){
+            this.drawALLText();
+            this.lasthp = MVMota.mainHero.hp;
+    };
+    //刷新atc
+    MVMota.Window_HUD.prototype.refresh_atc = function (){
+            this.drawALLText();
+            this.lastatc = MVMota.mainHero.atc;
+    };
+    //刷新def
+    MVMota.Window_HUD.prototype.refresh_def = function (){
+            this.drawALLText();
+            this.lastdef = MVMota.mainHero.def;
+    };
+    //刷新money
+    MVMota.Window_HUD.prototype.refresh_money = function (){
+            this.drawALLText();
+            this.lastmoney = MVMota.mainHero.money;
+    };
+    //刷新yellowkey
+    MVMota.Window_HUD.prototype.refresh_yellowkey = function (){
+            this.drawALLText();
+            this.lastyellowkey = MVMota.mainHero.key[0];
+    };
+    //刷新bluekey
+    MVMota.Window_HUD.prototype.refresh_bluekey = function (){
+            this.drawALLText();
+            this.lastbluekey = MVMota.mainHero.key[1];
+    };
+    //刷新redkey
+    MVMota.Window_HUD.prototype.refresh_redkey = function (){
+            this.drawALLText();
+            this.lastredkey = MVMota.mainHero.key[2];
+    };
+
+    MVMota.Window_HUD.prototype.update = function (){
+        if(MVMota.mainHero==null)
+        {
+            return;
+        }
+
+        if(MVMota.mainHero.floor!=this.lastfloor)
+            this.refresh_floor();
+        if(MVMota.mainHero.hp!=this.lasthp)
+            this.refresh_hp();
+        if(MVMota.mainHero.atc!=this.lastatc)
+            this.refresh_atc();
+        if(MVMota.mainHero.def!=this.lastdef)
+            this.refresh_def();
+        if(MVMota.mainHero.money!=this.lastmoney)
+            this.refresh_money();
+        if(MVMota.mainHero.yellowkey!=this.lastyellowkey)
+            this.refresh_yellowkey();
+        if(MVMota.mainHero.bluekey!=this.lastbluekey)
+            this.refresh_bluekey();
+        if(MVMota.mainHero.redkey!=this.lastredkey)
+            this.refresh_redkey();
+            
+        //绑定对地图的修改？？在这里，可能不大合适，但仍然在作为一个watcher??    
+        for(var i=1;i<MVMota.changedMaps.length;i++)
+        {
+            if(MVMota.mainHero.floor==MVMota.changedMaps[i].floor)
+            {
+                for(var j=0;j<MVMota.changedMaps[i].mapData.length;j++)
+                {
+                    window['$dataMap'].data[j]=MVMota.changedMaps[i].mapData[j];
+                }
+                
+            }
+        }
+    };
 ////    //楼层表，地图id与楼层floor相对应
     MVMota.MotaFloorList={};
     MVMota.MotaFloorList.list=[null,{mapId:10,floor:1},{mapId:7,floor:2},{mapid:8,floor:3}];
