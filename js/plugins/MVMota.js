@@ -91,8 +91,17 @@ var MVMota=window.MVMota||{};
             
             hero.defType=2;
             
-            hero.fight=function (monster) {
-                
+            hero.fight=function (monster,ifMonsterAtcFirst) {
+                if(ifMonsterAtcFirst)
+                {
+                    if(monster.AttackValue(hero)>hero.DefendValue(monster)){
+                        hero.hp-=(monster.AttackValue(hero)-hero.DefendValue(monster));
+                    }
+                    if(hero.hp<=0)
+                    {
+                        return -1;
+                    }
+                }
                 do{
                     if(hero.AttackValue(monster)>monster.DefendValue(hero)){
                         monster.hp-=(hero.AttackValue(monster)-monster.DefendValue(hero));
