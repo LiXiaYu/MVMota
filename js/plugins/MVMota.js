@@ -3,6 +3,59 @@
 //=============================================================================
 //"use strict";//严格模式，node.js的es6？？？
 
+////    //深拷贝
+var deepCompareCopy= function(source,target) { 
+    if(source instanceof Array)
+    {
+        for(var i=0;i<source.length;i++)
+        {
+            if(i>=target.length)
+            {
+                target.push(source[i]);
+            }
+            console.log(source);
+            console.log(i);
+            if(typeof source[i]==="object")
+            {
+                    deepCompareCopy(source[i],target[i]);
+            }
+            else
+            {
+                target[i]=source[i];
+            }
+        }
+    }
+    else
+    {
+        for (var key in source) {
+            console.log(source);
+            console.log(key);
+            if(source[key]===null)
+            {
+                continue;
+            }
+            if(typeof source[key]==="object")
+            {
+                if(key==="Role"||key==="Hero"||key==="Monster"||key==="Item")
+                {
+                    //target[key]=source[key];
+                }
+                else
+                {
+                    deepCompareCopy(source[key],target[key]);
+                }
+
+            }
+            else
+            {
+                target[key]=source[key];
+            }
+        } 
+    }
+    
+}
+////
+
 //封装在了MVMota里面，装个逼，就当namespace了，或者主class之类
 var MVMota=window.MVMota||{};
     //Role基类
@@ -347,7 +400,7 @@ var MVMota=window.MVMota||{};
       }
     };
     
-    MVMota.mainHero=null;
+    MVMota.mainHero=MVMota.Hero.createNew();
     
     MVMota.Initialize=function () {
         //主英雄 对象 内含数据
@@ -371,13 +424,54 @@ var MVMota=window.MVMota||{};
             window.resizeBy(resizeWidth, resizeHeight);
     };
 ////    
+////    //存档 读档
+    MVMota.SaveGame = DataManager.saveGame;
+    DataManager.saveGame = function(savefileId) {
+        MVMota.onSave();
+        ///以上 存档前
+
+        var result=MVMota.SaveGame.call(this, savefileId);
+
+        return result;
+    };
+
+    MVMota.LoadGame = DataManager.loadGame;
+    DataManager.loadGame = function(savefileId) {
+        var result=MVMota.LoadGame.call(this, savefileId);
+
+        ///以下 读档后
+        MVMota.onLoad();
+
+        return result;
+    };
+
+    MVMota.onSave=function()
+    {
+        var str = JSON.stringify(MVMota);
+        $gameVariables.setValue(20,str);
+    }
+    MVMota.onLoad=function()
+    {
+        var str=$gameVariables.value(20);
+        var objmvmota;
+        if(str!=""&&str!=null)
+        {
+            objmvmota= JSON.parse(str);  
+        }
+        console.log(MVMota);
+        console.log(objmvmota);
+        MVMota.Initialize();
+        deepCompareCopy(objmvmota,MVMota);
+    }
+////
+
 
 ////    //HUD界面   启发自 夏末渐离
-    var _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
+    MVMota.SceneMapCreateAllWindows = Scene_Map.prototype.createAllWindows;
     Scene_Map.prototype.createAllWindows = function ()
     {
-        _Scene_Map_createAllWindows.call(this);
-         this.addChild(new MVMota.Window_HUD());
+        MVMota.SceneMapCreateAllWindows.call(this);
+        this.addChild(new MVMota.Window_HUD()); 
     };
 
     MVMota.Window_HUD=function(){
@@ -480,17 +574,17 @@ var MVMota=window.MVMota||{};
     //刷新yellowkey
     MVMota.Window_HUD.prototype.refresh_yellowkey = function (){
             this.drawALLText();
-            this.lastyellowkey = MVMota.mainHero.key[0];
+            this.lastyellowkey = MVMota.mainHero.items[1].amount;
     };
     //刷新bluekey
     MVMota.Window_HUD.prototype.refresh_bluekey = function (){
             this.drawALLText();
-            this.lastbluekey = MVMota.mainHero.key[1];
+            this.lastbluekey = MVMota.mainHero.items[2].amount;
     };
     //刷新redkey
     MVMota.Window_HUD.prototype.refresh_redkey = function (){
             this.drawALLText();
-            this.lastredkey = MVMota.mainHero.key[2];
+            this.lastredkey = MVMota.mainHero.items[3].amount;
     };
 
     MVMota.Window_HUD.prototype.update = function (){
@@ -509,11 +603,11 @@ var MVMota=window.MVMota||{};
             this.refresh_def();
         if(MVMota.mainHero.money!=this.lastmoney)
             this.refresh_money();
-        if(MVMota.mainHero.yellowkey!=this.lastyellowkey)
+        if(MVMota.mainHero.items[1].amount!=this.lastyellowkey)
             this.refresh_yellowkey();
-        if(MVMota.mainHero.bluekey!=this.lastbluekey)
+        if(MVMota.mainHero.items[2].amount!=this.lastbluekey)
             this.refresh_bluekey();
-        if(MVMota.mainHero.redkey!=this.lastredkey)
+        if(MVMota.mainHero.items[3].amount!=this.lastredkey)
             this.refresh_redkey();
             
         //绑定对地图的修改？？在这里，可能不大合适，但仍然在作为一个watcher??    
@@ -529,6 +623,7 @@ var MVMota=window.MVMota||{};
             }
         }
     };
+
 ////    //楼层表，地图id与楼层floor相对应
     MVMota.MotaFloorList={};
     MVMota.MotaFloorList.list=[null,{mapId:10,floor:1},{mapId:7,floor:2},{mapid:8,floor:3}];
@@ -1156,3 +1251,5 @@ var MVMota=window.MVMota||{};
             
         }
     }
+
+////    //

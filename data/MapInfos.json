@@ -1,6 +1,6 @@
 [
 null,
-{"id":1,"expanded":true,"name":"Module","order":1,"parentId":0,"scrollX":542,"scrollY":325},
+{"id":1,"expanded":false,"name":"Module","order":1,"parentId":0,"scrollX":542,"scrollY":325},
 {"id":2,"expanded":true,"name":"Items","order":2,"parentId":1,"scrollX":532,"scrollY":305},
 null,
 {"id":4,"expanded":true,"name":"Monster","order":3,"parentId":1,"scrollX":532,"scrollY":307},
@@ -10,5 +10,5 @@ null,
 {"id":8,"expanded":true,"name":"Floor3","order":8,"parentId":6,"scrollX":532,"scrollY":317.5},
 null,
 {"id":10,"expanded":true,"name":"Floor1","order":9,"parentId":6,"scrollX":832,"scrollY":640},
-{"id":11,"expanded":true,"name":"SpecialEvents","order":5,"parentId":1,"scrollX":542,"scrollY":325}
+{"id":11,"expanded":true,"name":"SpecialEvents","order":5,"parentId":1,"scrollX":540,"scrollY":323}
 ]
