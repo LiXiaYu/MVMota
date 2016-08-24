@@ -492,6 +492,7 @@ var MVMota=window.MVMota||{};
         {
             return;
         }
+        
         this.drawALLText();
         
         this.lastfloor=null;
@@ -522,6 +523,10 @@ var MVMota=window.MVMota||{};
         return 50;
     };
     MVMota.Window_HUD.prototype.drawALLText= function(){
+        if(MVMota.mainHero.items==null)
+        {
+            return;
+        }
         this.contents.clear();
         this.contents.fontSize = 24;
         var Px=200;
@@ -592,6 +597,10 @@ var MVMota=window.MVMota||{};
         {
             return;
         }
+        if(MVMota.mainHero.items==null)
+        {
+            return;
+        }
 
         if(MVMota.mainHero.floor!=this.lastfloor)
             this.refresh_floor();
@@ -626,7 +635,7 @@ var MVMota=window.MVMota||{};
 
 ////    //楼层表，地图id与楼层floor相对应
     MVMota.MotaFloorList={};
-    MVMota.MotaFloorList.list=[null,{mapId:10,floor:1},{mapId:7,floor:2},{mapid:8,floor:3}];
+    MVMota.MotaFloorList.list=[null,{mapId:10,floor:1},{mapId:7,floor:2},{mapid:3,floor:3}];
     MVMota.MotaFloorList.findIdByFloor=function(floor){
         for(var i=1;i<MVMota.MotaFloorList.list.length;i++)
         {
