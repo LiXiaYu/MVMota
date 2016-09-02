@@ -1,3 +1,10 @@
+/**
+ * @license
+ * MVMota - v0.3.5
+ *
+ * MVMota is licensed under the LPGL License.
+ * http://choosealicense.com/licenses/lgpl-3.0/
+ */
 var MVMota=window.MVMota||{};
 
 MVMota.AtcTypes=[
