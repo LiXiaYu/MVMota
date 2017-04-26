@@ -1,5 +1,5 @@
 //=============================================================================
-// rpg_objects.js v1.2.0
+// rpg_objects.js v1.4.0
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -1693,8 +1693,8 @@ Game_Action.prototype.evalDamageFormula = function(target) {
         var v = $gameVariables._data;
         var sign = ([3, 4].contains(item.damage.type) ? -1 : 1);
         var value = Math.max(eval(item.damage.formula), 0) * sign;
-        if (isNaN(value)) value = 0;
-        return value;
+		if (isNaN(value)) value = 0;
+		return value;
     } catch (e) {
         return 0;
     }
@@ -1770,13 +1770,21 @@ Game_Action.prototype.executeMpDamage = function(target, value) {
 
 Game_Action.prototype.gainDrainedHp = function(value) {
     if (this.isDrain()) {
-        this.subject().gainHp(value);
+       var gainTarget = this.subject();
+       if (this._reflectionTarget !== undefined) {
+            gainTarget = this._reflectionTarget;
+        }
+       gainTarget.gainHp(value);
     }
 };
 
 Game_Action.prototype.gainDrainedMp = function(value) {
     if (this.isDrain()) {
-        this.subject().gainMp(value);
+       var gainTarget = this.subject();
+       if (this._reflectionTarget !== undefined) {
+           gainTarget = this._reflectionTarget;
+       }
+       gainTarget.gainMp(value);
     }
 };
 
@@ -2621,7 +2629,7 @@ Game_BattlerBase.prototype.mpRate = function() {
 };
 
 Game_BattlerBase.prototype.tpRate = function() {
-    return this.tp / 100;
+    return this.tp / this.maxTp();
 };
 
 Game_BattlerBase.prototype.hide = function() {
@@ -3953,6 +3961,10 @@ Game_Actor.prototype.isLearnedSkill = function(skillId) {
     return this._skills.contains(skillId);
 };
 
+Game_Actor.prototype.hasSkill = function(skillId) {
+    return this.skills().contains($dataSkills[skillId]);
+};
+
 Game_Actor.prototype.changeClass = function(classId, keepExp) {
     if (keepExp) {
         this._exp[classId] = this.currentExp();
@@ -4247,6 +4259,19 @@ Game_Actor.prototype.lastCommandSymbol = function() {
 
 Game_Actor.prototype.setLastCommandSymbol = function(symbol) {
     this._lastCommandSymbol = symbol;
+};
+
+Game_Actor.prototype.testEscape = function(item) {
+    return item.effects.some(function(effect, index, ar) {
+        return effect && effect.code === Game_Action.EFFECT_SPECIAL;
+    });
+};
+
+Game_Actor.prototype.meetsUsableItemConditions = function(item) {
+    if ($gameParty.inBattle() && !BattleManager.canEscape() && this.testEscape(item)) {
+        return false;
+    }
+    return Game_BattlerBase.prototype.meetsUsableItemConditions.call(this, item);
 };
 
 //-----------------------------------------------------------------------------
@@ -9150,132 +9175,132 @@ Game_Interpreter.prototype.command108 = function() {
 Game_Interpreter.prototype.command111 = function() {
     var result = false;
     switch (this._params[0]) {
-    case 0:  // Switch
-        result = ($gameSwitches.value(this._params[1]) === (this._params[2] === 0));
-        break;
-    case 1:  // Variable
-        var value1 = $gameVariables.value(this._params[1]);
-        var value2;
-        if (this._params[2] === 0) {
-            value2 = this._params[3];
-        } else {
-            value2 = $gameVariables.value(this._params[3]);
-        }
-        switch (this._params[4]) {
-        case 0:  // Equal to
-            result = (value1 === value2);
+        case 0:  // Switch
+            result = ($gameSwitches.value(this._params[1]) === (this._params[2] === 0));
             break;
-        case 1:  // Greater than or Equal to
-            result = (value1 >= value2);
-            break;
-        case 2:  // Less than or Equal to
-            result = (value1 <= value2);
-            break;
-        case 3:  // Greater than
-            result = (value1 > value2);
-            break;
-        case 4:  // Less than
-            result = (value1 < value2);
-            break;
-        case 5:  // Not Equal to
-            result = (value1 !== value2);
-            break;
-        }
-        break;
-    case 2:  // Self Switch
-        if (this._eventId > 0) {
-            var key = [this._mapId, this._eventId, this._params[1]];
-            result = ($gameSelfSwitches.value(key) === (this._params[2] === 0));
-        }
-        break;
-    case 3:  // Timer
-        if ($gameTimer.isWorking()) {
+        case 1:  // Variable
+            var value1 = $gameVariables.value(this._params[1]);
+            var value2;
             if (this._params[2] === 0) {
-                result = ($gameTimer.seconds() >= this._params[1]);
+                value2 = this._params[3];
             } else {
-                result = ($gameTimer.seconds() <= this._params[1]);
+                value2 = $gameVariables.value(this._params[3]);
             }
-        }
-        break;
-    case 4:  // Actor
-        var actor = $gameActors.actor(this._params[1]);
-        if (actor) {
-            var n = this._params[3];
+            switch (this._params[4]) {
+                case 0:  // Equal to
+                    result = (value1 === value2);
+                    break;
+                case 1:  // Greater than or Equal to
+                    result = (value1 >= value2);
+                    break;
+                case 2:  // Less than or Equal to
+                    result = (value1 <= value2);
+                    break;
+                case 3:  // Greater than
+                    result = (value1 > value2);
+                    break;
+                case 4:  // Less than
+                    result = (value1 < value2);
+                    break;
+                case 5:  // Not Equal to
+                    result = (value1 !== value2);
+                    break;
+            }
+            break;
+        case 2:  // Self Switch
+            if (this._eventId > 0) {
+                var key = [this._mapId, this._eventId, this._params[1]];
+                result = ($gameSelfSwitches.value(key) === (this._params[2] === 0));
+            }
+            break;
+        case 3:  // Timer
+            if ($gameTimer.isWorking()) {
+                if (this._params[2] === 0) {
+                    result = ($gameTimer.seconds() >= this._params[1]);
+                } else {
+                    result = ($gameTimer.seconds() <= this._params[1]);
+                }
+            }
+            break;
+        case 4:  // Actor
+            var actor = $gameActors.actor(this._params[1]);
+            if (actor) {
+                var n = this._params[3];
+                switch (this._params[2]) {
+                    case 0:  // In the Party
+                        result = $gameParty.members().contains(actor);
+                        break;
+                    case 1:  // Name
+                        result = (actor.name() === n);
+                        break;
+                    case 2:  // Class
+                        result = actor.isClass($dataClasses[n]);
+                        break;
+                    case 3:  // Skill
+                        result = actor.hasSkill(n);
+                        break;
+                    case 4:  // Weapon
+                        result = actor.hasWeapon($dataWeapons[n]);
+                        break;
+                    case 5:  // Armor
+                        result = actor.hasArmor($dataArmors[n]);
+                        break;
+                    case 6:  // State
+                        result = actor.isStateAffected(n);
+                        break;
+                }
+            }
+            break;
+        case 5:  // Enemy
+            var enemy = $gameTroop.members()[this._params[1]];
+            if (enemy) {
+                switch (this._params[2]) {
+                    case 0:  // Appeared
+                        result = enemy.isAlive();
+                        break;
+                    case 1:  // State
+                        result = enemy.isStateAffected(this._params[3]);
+                        break;
+                }
+            }
+            break;
+        case 6:  // Character
+            var character = this.character(this._params[1]);
+            if (character) {
+                result = (character.direction() === this._params[2]);
+            }
+            break;
+        case 7:  // Gold
             switch (this._params[2]) {
-            case 0:  // In the Party
-                result = $gameParty.members().contains(actor);
-                break;
-            case 1:  // Name
-                result = (actor.name() === n);
-                break;
-            case 2:  // Class
-                result = actor.isClass($dataClasses[n]);
-                break;
-            case 3:  // Skill
-                result = actor.isLearnedSkill(n);
-                break;
-            case 4:  // Weapon
-                result = actor.hasWeapon($dataWeapons[n]);
-                break;
-            case 5:  // Armor
-                result = actor.hasArmor($dataArmors[n]);
-                break;
-            case 6:  // State
-                result = actor.isStateAffected(n);
-                break;
+                case 0:  // Greater than or equal to
+                    result = ($gameParty.gold() >= this._params[1]);
+                    break;
+                case 1:  // Less than or equal to
+                    result = ($gameParty.gold() <= this._params[1]);
+                    break;
+                case 2:  // Less than
+                    result = ($gameParty.gold() < this._params[1]);
+                    break;
             }
-        }
-        break;
-    case 5:  // Enemy
-        var enemy = $gameTroop.members()[this._params[1]];
-        if (enemy) {
-            switch (this._params[2]) {
-            case 0:  // Appeared
-                result = enemy.isAlive();
-                break;
-            case 1:  // State
-                result = enemy.isStateAffected(this._params[3]);
-                break;
-            }
-        }
-        break;
-    case 6:  // Character
-        var character = this.character(this._params[1]);
-        if (character) {
-            result = (character.direction() === this._params[2]);
-        }
-        break;
-    case 7:  // Gold
-        switch (this._params[2]) {
-        case 0:  // Greater than or equal to
-            result = ($gameParty.gold() >= this._params[1]);
             break;
-        case 1:  // Less than or equal to
-            result = ($gameParty.gold() <= this._params[1]);
+        case 8:  // Item
+            result = $gameParty.hasItem($dataItems[this._params[1]]);
             break;
-        case 2:  // Less than
-            result = ($gameParty.gold() < this._params[1]);
+        case 9:  // Weapon
+            result = $gameParty.hasItem($dataWeapons[this._params[1]], this._params[2]);
             break;
-        }
-        break;
-    case 8:  // Item
-        result = $gameParty.hasItem($dataItems[this._params[1]]);
-        break;
-    case 9:  // Weapon
-        result = $gameParty.hasItem($dataWeapons[this._params[1]], this._params[2]);
-        break;
-    case 10:  // Armor
-        result = $gameParty.hasItem($dataArmors[this._params[1]], this._params[2]);
-        break;
-    case 11:  // Button
-        result = Input.isPressed(this._params[1]);
-        break;
-    case 12:  // Script
-        result = !!eval(this._params[1]);
-        break;
-    case 13:  // Vehicle
-        result = ($gamePlayer.vehicle() === $gameMap.vehicle(this._params[1]));
-        break;
+        case 10:  // Armor
+            result = $gameParty.hasItem($dataArmors[this._params[1]], this._params[2]);
+            break;
+        case 11:  // Button
+            result = Input.isPressed(this._params[1]);
+            break;
+        case 12:  // Script
+            result = !!eval(this._params[1]);
+            break;
+        case 13:  // Vehicle
+            result = ($gamePlayer.vehicle() === $gameMap.vehicle(this._params[1]));
+            break;
     }
     this._branch[this._indent] = result;
     if (this._branch[this._indent] === false) {
@@ -10374,11 +10399,19 @@ Game_Interpreter.prototype.command336 = function() {
 
 // Show Battle Animation
 Game_Interpreter.prototype.command337 = function() {
-    this.iterateEnemyIndex(this._params[0], function(enemy) {
-        if (enemy.isAlive()) {
-            enemy.startAnimation(this._params[1], false, 0);
-        }
-    }.bind(this));
+    if (this._params[2] == true) {
+        this.iterateEnemyIndex(-1,function(enemy) {
+            if (enemy.isAlive()) {
+                enemy.startAnimation(this._params[1],false,0);
+            }
+        }.bind(this));
+    } else {
+        this.iterateEnemyIndex(this._params[0], function (enemy) {
+            if (enemy.isAlive()) {
+                enemy.startAnimation(this._params[1], false, 0);
+            }
+        }.bind(this));
+    }
     return true;
 };
 
